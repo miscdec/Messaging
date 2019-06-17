@@ -17,8 +17,6 @@ android {
 
         externalNativeBuild {
             cmake {
-                cFlags "-Wall"
-                cppFlags ""
             }
         }
     }
@@ -38,18 +36,22 @@ android {
 dependencies {
     implementation project(':common')
     implementation project(':commonframesequence')
-    implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
-    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
-    implementation "com.android.support:palette-v7:${rootProject.ext.supportLibVersion}"
-    implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportLibVersion}"
-    implementation "com.android.support:support-v13:${rootProject.ext.supportLibVersion}"
+    implementation "androidx.core:core:${rootProject.ext.supportLibVersion}"
+    implementation "androidx.media:media:${rootProject.ext.supportLibVersion}"
+    implementation "androidx.legacy:legacy-support-core-utils:${rootProject.ext.supportLibVersion}"
+    implementation "androidx.legacy:legacy-support-core-ui:${rootProject.ext.supportLibVersion}"
+    implementation "androidx.fragment:fragment:${rootProject.ext.supportLibVersion}"
+    implementation "androidx.appcompat:appcompat:${rootProject.ext.supportLibVersion}"
+    implementation "androidx.palette:palette:${rootProject.ext.supportLibVersion}"
+    implementation "androidx.recyclerview:recyclerview:${rootProject.ext.supportLibVersion}"
+    implementation "androidx.legacy:legacy-support-v13:${rootProject.ext.supportLibVersion}"
     implementation project(':vcard')
     api 'com.google.guava:guava:27.0.1-android'
     implementation project(':chips')
     implementation project(':photoviewer')
-    api 'com.googlecode.libphonenumber:libphonenumber:8.10.6'
-    api 'com.googlecode.libphonenumber:geocoder:2.112'
-    api 'com.googlecode.libphonenumber:prefixmapper:2.112'
-    api 'com.googlecode.libphonenumber:carrier:1.102'
+    api 'com.googlecode.libphonenumber:libphonenumber:8.10.13'
+    api 'com.googlecode.libphonenumber:geocoder:2.119'
+    api 'com.googlecode.libphonenumber:prefixmapper:2.119'
+    api 'com.googlecode.libphonenumber:carrier:1.109'
     implementation project(':colorpicker')
 }

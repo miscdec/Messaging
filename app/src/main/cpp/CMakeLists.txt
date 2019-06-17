@@ -11,11 +11,14 @@ cmake_minimum_required(VERSION 3.4.1)
 find_library(log-lib  log)
 
 add_library(giftranscode  SHARED  GifTranscoder.cpp)
+target_compile_options(giftranscode PUBLIC -Wall -Werror -Wno-unused-parameter -Wno-switch)
 include_directories(gif/)
 
 add_library(gif STATIC
         gif/dgif_lib.c  gif/egif_lib.c  gif/gifalloc.c  gif/gif_err.c  gif/gif_hash.c
         gif/openbsd-reallocarray.c  gif/quantize.c)
+target_compile_options(gif PRIVATE -Werror -Wno-format -Wno-sign-compare -Wno-unused-parameter)
+target_compile_definitions(gif PRIVATE -DHAVE_CONFIG_H)
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this

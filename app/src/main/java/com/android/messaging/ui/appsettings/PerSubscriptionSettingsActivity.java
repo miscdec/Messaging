@@ -28,7 +28,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
-import android.support.v4.app.NavUtils;
+import androidx.core.app.NavUtils;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
@@ -134,7 +134,7 @@ public class PerSubscriptionSettingsActivity extends BugleActionBarActivity {
             if (!MmsConfig.get(mSubId).getSMSDeliveryReportsEnabled()) {
                 final Preference deliveryReportsPref = findPreference(
                         getString(R.string.delivery_reports_pref_key));
-                mmsCategory.removePreference(deliveryReportsPref);
+                advancedCategory.removePreference(deliveryReportsPref);
             }
             final Preference wirelessAlertPref = findPreference(getString(
                     R.string.wireless_alerts_key));
