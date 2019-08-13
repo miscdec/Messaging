@@ -25,8 +25,8 @@ allprojects {
 ext {
     sdkVersion = 29
     supportLibVersion = "1.0.0"
-    verName = "Q.20190626"
-    verCode = 6
+    verName = "Q.20190814"
+    verCode = 8
 }
 
 task clean(type: Delete) {
