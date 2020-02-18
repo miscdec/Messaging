@@ -46,12 +46,12 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.legacy:legacy-support-v13:${rootProject.ext.supportLibVersion}"
     implementation project(':vcard')
-    api 'com.google.guava:guava:28.0-android'
+    api 'com.google.guava:guava:28.2-android'
     implementation project(':chips')
     implementation project(':photoviewer')
-    api 'com.googlecode.libphonenumber:libphonenumber:8.10.16'
-    api 'com.googlecode.libphonenumber:geocoder:2.122'
-    api 'com.googlecode.libphonenumber:prefixmapper:2.122'
-    api 'com.googlecode.libphonenumber:carrier:1.112'
+    api 'com.googlecode.libphonenumber:libphonenumber:8.11.4'
+    api 'com.googlecode.libphonenumber:geocoder:2.134'
+    api 'com.googlecode.libphonenumber:prefixmapper:2.134'
+    api 'com.googlecode.libphonenumber:carrier:1.124'
     implementation project(':colorpicker')
 }
