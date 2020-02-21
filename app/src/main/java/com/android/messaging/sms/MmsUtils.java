@@ -1550,7 +1550,7 @@ public class MmsUtils {
                         null/*selectionArgs*/,
                         null);
                 sUseSystemApn = true;
-            } catch (final SecurityException|NoSuchFieldError e) {
+            } catch (final SecurityException e) {
                 LogUtil.w(TAG, "Can't access system APN, using internal table", e);
                 sUseSystemApn = false;
             } finally {
