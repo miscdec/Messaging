@@ -17,7 +17,7 @@
 package com.android.messaging.datamodel.action;
 
 import android.os.Handler;
-import androidx.collection.SimpleArrayMap;
+import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 
 import com.android.messaging.util.Assert.RunsOnAnyThread;

@@ -22,10 +22,10 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationCompat.Builder;
-import androidx.core.app.NotificationCompat.WearableExtender;
-import androidx.core.app.NotificationManagerCompat;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
+import android.support.v4.app.NotificationCompat.WearableExtender;
+import android.support.v4.app.NotificationManagerCompat;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -625,13 +625,10 @@ public abstract class MessageNotificationState extends NotificationState {
         final Context context = Factory.get().getApplicationContext();
         final Uri uri =
                 MessagingContentProvider.buildConversationParticipantsUri(conversationId);
+        final Cursor participantsCursor = context.getContentResolver().query(
+                uri, ParticipantData.ParticipantsQuery.PROJECTION, null, null, null);
         final ConversationParticipantsData participantsData = new ConversationParticipantsData();
-
-        try (final Cursor participantsCursor = context.getContentResolver().query(
-                    uri, ParticipantData.ParticipantsQuery.PROJECTION, null, null, null)) {
-            participantsData.bind(participantsCursor);
-        }
-
+        participantsData.bind(participantsCursor);
         final Iterator<ParticipantData> iter = participantsData.iterator();
 
         final HashMap<String, Integer> firstNames = new HashMap<String, Integer>();

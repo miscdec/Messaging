@@ -34,9 +34,9 @@ import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Intents;
 import android.provider.MediaStore;
 import android.provider.Telephony;
-import androidx.annotation.Nullable;
-import androidx.core.app.TaskStackBuilder;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import android.support.annotation.Nullable;
+import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.android.ex.photo.Intents.PhotoViewIntentBuilder;
@@ -236,11 +236,11 @@ public class UIIntentsImpl extends UIIntents {
     @Override
     public void launchDocumentImagePicker(final Fragment fragment) {
         final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, MessagePartData.ACCEPTABLE_GALLERY_MEDIA_TYPES);
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, MessagePartData.ACCEPTABLE_IMAGE_TYPES);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType(ContentType.ANY_TYPE);
+        intent.setType(ContentType.IMAGE_UNSPECIFIED);
 
-        fragment.startActivityForResult(intent, REQUEST_PICK_MEDIA_FROM_DOCUMENT_PICKER);
+        fragment.startActivityForResult(intent, REQUEST_PICK_IMAGE_FROM_DOCUMENT_PICKER);
     }
 
     @Override

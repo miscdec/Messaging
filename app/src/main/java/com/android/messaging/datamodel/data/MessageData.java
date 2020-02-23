@@ -540,10 +540,6 @@ public class MessageData implements Parcelable {
         return mSeen;
     }
 
-    public final long getMmsExpiry() {
-        return mMmsExpiry;
-    }
-
     /**
      * For incoming MMS messages this returns the retrieve-status value
      * For sent MMS messages this returns the response-status value

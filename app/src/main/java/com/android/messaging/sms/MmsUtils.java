@@ -333,26 +333,20 @@ public class MmsUtils {
             String srcName;
             if (part.isAttachment()) {
                 String contentType = part.getContentType();
-                final String extension = ContentType.getExtensionFromMimeType(contentType);
                 if (ContentType.isImageType(contentType)) {
-                    if (extension != null) {
-                        srcName = String.format("image%06d.%s", index, extension);
-                    } else {
-                        // There's a good chance that if we selected the image from our media picker
-                        // the content type is image/*. Fix the content type here for gifs so that
-                        // we only need to open the input stream once. All other gif vs static image
-                        // checks will only have to do a string comparison which is much cheaper.
-                        final boolean isGif = ImageUtils.isGif(contentType, part.getContentUri());
-                        contentType = isGif ? ContentType.IMAGE_GIF : contentType;
-                        srcName = String.format(isGif ? "image%06d.gif" : "image%06d.jpg", index);
-                    }
+                    // There's a good chance that if we selected the image from our media picker the
+                    // content type is image/*. Fix the content type here for gifs so that we only
+                    // need to open the input stream once. All other gif vs static image checks will
+                    // only have to do a string comparison which is much cheaper.
+                    final boolean isGif = ImageUtils.isGif(contentType, part.getContentUri());
+                    contentType = isGif ? ContentType.IMAGE_GIF : contentType;
+                    srcName = String.format(isGif ? "image%06d.gif" : "image%06d.jpg", index);
                     smilBody.append(String.format(sSmilImagePart, srcName));
                     totalLength += addPicturePart(context, pb, index, part,
                             widthLimit, heightLimit, bytesPerImage, srcName, contentType);
                     hasVisualAttachment = true;
                 } else if (ContentType.isVideoType(contentType)) {
-                    srcName = String.format("video%06d.%s", index,
-                            extension != null ? extension : "mp4");
+                    srcName = String.format("video%06d.mp4", index);
                     final int length = addVideoPart(context, pb, part, srcName);
                     totalLength += length;
                     smilBody.append(String.format(sSmilVideoPart, srcName,
@@ -364,8 +358,7 @@ public class MmsUtils {
                     smilBody.append(String.format(sSmilPart, srcName));
                     hasNonVisualAttachment = true;
                 } else if (ContentType.isAudioType(contentType)) {
-                    srcName = String.format("recording%06d.%s",
-                            index, extension != null ? extension : "amr");
+                    srcName = String.format("recording%06d.amr", index);
                     totalLength += addOtherPart(context, pb, part, srcName);
                     final int duration = getMediaDurationMs(context, part, -1);
                     Assert.isTrue(duration != -1);
@@ -959,7 +952,7 @@ public class MmsUtils {
     // Persist a received MMS message in telephony
     public static Uri insertReceivedMmsMessage(final Context context,
             final RetrieveConf retrieveConf, final int subId, final String subPhoneNumber,
-            final long receivedTimestampInSeconds, final long expiry, final String transactionId) {
+            final long receivedTimestampInSeconds, final String contentLocation) {
         final PduPersister persister = PduPersister.getPduPersister(context);
         Uri uri = null;
         try {
@@ -970,13 +963,12 @@ public class MmsUtils {
                     subPhoneNumber,
                     null/*preOpenedFiles*/);
 
-            final ContentValues values = new ContentValues(3);
+            final ContentValues values = new ContentValues(2);
             // Update mms table with local time instead of PDU time
             values.put(Mms.DATE, receivedTimestampInSeconds);
-            // Also update the transaction id and the expiry from NotificationInd so that
-            // wap push dedup would work even after the wap push is deleted.
-            values.put(Mms.TRANSACTION_ID, transactionId);
-            values.put(Mms.EXPIRY, expiry);
+            // Also update the content location field from NotificationInd so that
+            // wap push dedup would work even after the wap push is deleted
+            values.put(Mms.CONTENT_LOCATION, contentLocation);
             SqliteWrapper.update(context, context.getContentResolver(), uri, values, null, null);
             if (LogUtil.isLoggable(TAG, LogUtil.DEBUG)) {
                 LogUtil.d(TAG, "MmsUtils: Inserted MMS message into telephony, uri: " + uri);
@@ -1202,8 +1194,7 @@ public class MmsUtils {
 
     public static SmsMessage getSmsMessageFromDeliveryReport(final Intent intent) {
         final byte[] pdu = intent.getByteArrayExtra("pdu");
-        final String format = intent.getStringExtra("format");
-        return SmsMessage.createFromPdu(pdu, format);
+        return SmsMessage.createFromPdu(pdu);
     }
 
     /**
@@ -1851,7 +1842,7 @@ public class MmsUtils {
     public static StatusPlusUri downloadMmsMessage(final Context context, final Uri notificationUri,
             final int subId, final String subPhoneNumber, final String transactionId,
             final String contentLocation, final boolean autoDownload,
-            final long receivedTimestampInSeconds, final long expiry, Bundle extras) {
+            final long receivedTimestampInSeconds, Bundle extras) {
         if (TextUtils.isEmpty(contentLocation)) {
             LogUtil.e(TAG, "MmsUtils: Download from empty content location URL");
             return new StatusPlusUri(
@@ -1902,14 +1893,13 @@ public class MmsUtils {
                 extras.putBoolean(DownloadMmsAction.EXTRA_AUTO_DOWNLOAD, autoDownload);
                 extras.putLong(DownloadMmsAction.EXTRA_RECEIVED_TIMESTAMP,
                         receivedTimestampInSeconds);
-                extras.putLong(DownloadMmsAction.EXTRA_EXPIRY, expiry);
 
                 MmsSender.downloadMms(context, subId, contentLocation, extras);
                 return STATUS_PENDING; // Download happens asynchronously; no status to return
             }
             return insertDownloadedMessageAndSendResponse(context, notificationUri, subId,
                     subPhoneNumber, transactionId, contentLocation, autoDownload,
-                    receivedTimestampInSeconds, expiry, retrieveConf);
+                    receivedTimestampInSeconds, retrieveConf);
 
         } catch (final MmsFailureException e) {
             LogUtil.e(TAG, "MmsUtils: failed to download message " + notificationUri, e);
@@ -1924,8 +1914,8 @@ public class MmsUtils {
             final Uri notificationUri, final int subId, final String subPhoneNumber,
             final String transactionId, final String contentLocation,
             final boolean autoDownload, final long receivedTimestampInSeconds,
-            final long expiry, final RetrieveConf retrieveConf) {
-        final byte[] notificationTransactionId = stringToBytes(transactionId, "UTF-8");
+            final RetrieveConf retrieveConf) {
+        final byte[] transactionIdBytes = stringToBytes(transactionId, "UTF-8");
         Uri messageUri = null;
         int status = MMS_REQUEST_MANUAL_RETRY;
         int retrieveStatus = PDU_HEADER_VALUE_UNDEFINED;
@@ -1950,31 +1940,22 @@ public class MmsUtils {
         if (status == MMS_REQUEST_SUCCEEDED) {
             // Send response of the notification
             if (autoDownload) {
-                sendNotifyResponseForMmsDownload(
-                        context,
-                        subId,
-                        notificationTransactionId,
-                        contentLocation,
-                        PduHeaders.STATUS_RETRIEVED);
+                sendNotifyResponseForMmsDownload(context, subId, transactionIdBytes,
+                        contentLocation, PduHeaders.STATUS_RETRIEVED);
             } else {
-                sendAcknowledgeForMmsDownload(
-                        context, subId, retrieveConf.getTransactionId(), contentLocation);
+                sendAcknowledgeForMmsDownload(context, subId, transactionIdBytes, contentLocation);
             }
 
             // Insert downloaded message into telephony
             final Uri inboxUri = MmsUtils.insertReceivedMmsMessage(context, retrieveConf, subId,
-                    subPhoneNumber, receivedTimestampInSeconds, expiry, transactionId);
+                    subPhoneNumber, receivedTimestampInSeconds, contentLocation);
             messageUri = ContentUris.withAppendedId(Mms.CONTENT_URI, ContentUris.parseId(inboxUri));
         } else if (status == MMS_REQUEST_AUTO_RETRY) {
             // For a retry do nothing
         } else if (status == MMS_REQUEST_MANUAL_RETRY && autoDownload) {
             // Failure from autodownload - just treat like manual download
-            sendNotifyResponseForMmsDownload(
-                    context,
-                    subId,
-                    notificationTransactionId,
-                    contentLocation,
-                    PduHeaders.STATUS_DEFERRED);
+            sendNotifyResponseForMmsDownload(context, subId, transactionIdBytes,
+                    contentLocation, PduHeaders.STATUS_DEFERRED);
         }
         return new StatusPlusUri(status, retrieveStatus, messageUri);
     }
@@ -2180,28 +2161,57 @@ public class MmsUtils {
                     uri, values, null, null);
     }
 
-    // Selection for dedup algorithm:
-    // ((m_type=NOTIFICATION_IND) OR (m_type=RETRIEVE_CONF)) AND (exp>NOW)) AND (t_id=xxxxxx)
-    // i.e. If it is NotificationInd or RetrieveConf and not expired
-    //      AND transaction id is the input id
+    // Selection for new dedup algorithm:
+    // ((m_type<>130) OR (exp>NOW)) AND (date>NOW-7d) AND (date<NOW+7d) AND (ct_l=xxxxxx)
+    // i.e. If it is NotificationInd and not expired or not NotificationInd
+    //      AND message is received with +/- 7 days from now
+    //      AND content location is the input URL
     private static final String DUP_NOTIFICATION_QUERY_SELECTION =
-            "((" + Mms.MESSAGE_TYPE + "=?) OR (" + Mms.MESSAGE_TYPE + "=?)) AND ("
-                    + Mms.EXPIRY + ">?) AND (" + Mms.TRANSACTION_ID + "=?)";
+            "((" + Mms.MESSAGE_TYPE + "<>?) OR (" + Mms.EXPIRY + ">?)) AND ("
+                    + Mms.DATE + ">?) AND (" + Mms.DATE + "<?) AND (" + Mms.CONTENT_LOCATION +
+                    "=?)";
+    // Selection for old behavior: only checks NotificationInd and its content location
+    private static final String DUP_NOTIFICATION_QUERY_SELECTION_OLD =
+            "(" + Mms.MESSAGE_TYPE + "=?) AND (" + Mms.CONTENT_LOCATION + "=?)";
 
     private static final int MAX_RETURN = 32;
     private static String[] getDupNotifications(final Context context, final NotificationInd nInd) {
-        final byte[] rawTransactionId = nInd.getTransactionId();
-        if (rawTransactionId != null) {
-            // dedup algorithm
-            String selection = DUP_NOTIFICATION_QUERY_SELECTION;
-            final long nowSecs = System.currentTimeMillis() / 1000;
-            String[] selectionArgs = new String[] {
-                    Integer.toString(PduHeaders.MESSAGE_TYPE_NOTIFICATION_IND),
-                    Integer.toString(PduHeaders.MESSAGE_TYPE_RETRIEVE_CONF),
-                    Long.toString(nowSecs),
-                    new String(rawTransactionId)
-            };
-
+        final byte[] rawLocation = nInd.getContentLocation();
+        if (rawLocation != null) {
+            final String location = new String(rawLocation);
+            // We can not be sure if the content location of an MMS is globally and historically
+            // unique. So we limit the dedup time within the last 7 days
+            // (or configured by gservices remotely). If the same content location shows up after
+            // that, we will download regardless. Duplicated message is better than no message.
+            String selection;
+            String[] selectionArgs;
+            final long timeLimit = BugleGservices.get().getLong(
+                    BugleGservicesKeys.MMS_WAP_PUSH_DEDUP_TIME_LIMIT_SECS,
+                    BugleGservicesKeys.MMS_WAP_PUSH_DEDUP_TIME_LIMIT_SECS_DEFAULT);
+            if (timeLimit > 0) {
+                // New dedup algorithm
+                selection = DUP_NOTIFICATION_QUERY_SELECTION;
+                final long nowSecs = System.currentTimeMillis() / 1000;
+                final long timeLowerBoundSecs = nowSecs - timeLimit;
+                // Need upper bound to protect against clock change so that a message has a time
+                // stamp in the future
+                final long timeUpperBoundSecs = nowSecs + timeLimit;
+                selectionArgs = new String[] {
+                        Integer.toString(PduHeaders.MESSAGE_TYPE_NOTIFICATION_IND),
+                        Long.toString(nowSecs),
+                        Long.toString(timeLowerBoundSecs),
+                        Long.toString(timeUpperBoundSecs),
+                        location
+                };
+            } else {
+                // If time limit is 0, we revert back to old behavior in case the new
+                // dedup algorithm behaves badly
+                selection = DUP_NOTIFICATION_QUERY_SELECTION_OLD;
+                selectionArgs = new String[] {
+                        Integer.toString(PduHeaders.MESSAGE_TYPE_NOTIFICATION_IND),
+                        location
+                };
+            }
             Cursor cursor = null;
             try {
                 cursor = SqliteWrapper.query(
@@ -2338,7 +2348,7 @@ public class MmsUtils {
                 } else {
                     LogUtil.w(TAG, "Received WAP Push is a dup: " + Joiner.on(',').join(dups));
                     if (LogUtil.isLoggable(TAG, LogUtil.VERBOSE)) {
-                        LogUtil.w(TAG, "Dup Transaction Id=" + new String(nInd.getTransactionId()));
+                        LogUtil.w(TAG, "Dup WAP Push url=" + new String(nInd.getContentLocation()));
                     }
                 }
                 break;

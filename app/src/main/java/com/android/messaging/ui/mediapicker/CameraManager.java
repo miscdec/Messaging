@@ -28,7 +28,7 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Looper;
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -636,7 +636,6 @@ class CameraManager implements FocusOverlayManager.Listener {
             }
         }
 
-        mMediaRecorder.closeVideoFileDescriptor();
         mMediaRecorder.release();
         mMediaRecorder = null;
 

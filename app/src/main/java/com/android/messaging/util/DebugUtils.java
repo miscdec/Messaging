@@ -291,10 +291,9 @@ public class DebugUtils {
                 dis = new DataInputStream(fis);
 
                 // SMS dump
-                String format = null;
                 final int chars = dis.readInt();
                 if (chars > 0) {
-                    format = dis.readUTF();
+                    final String format = dis.readUTF();
                 }
                 final int count = dis.readInt();
                 final SmsMessage[] messagesTemp = new SmsMessage[count];
@@ -302,11 +301,7 @@ public class DebugUtils {
                     final int length = dis.readInt();
                     final byte[] pdu = new byte[length];
                     dis.read(pdu, 0, length);
-                    if (format == null) {
-                        messagesTemp[i] = SmsMessage.createFromPdu(pdu);
-                    } else {
-                        messagesTemp[i] = SmsMessage.createFromPdu(pdu, format);
-                    }
+                    messagesTemp[i] = SmsMessage.createFromPdu(pdu);
                 }
                 messages = messagesTemp;
             } catch (final FileNotFoundException e) {

@@ -118,17 +118,7 @@ class FactoryImpl extends Factory {
         }
         sInitialized = true;
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            android.app.NotificationChannel channel = new android.app.NotificationChannel(
-                    "id:nChan_aos.andro.messaging",
-                    "nChan_aos.andro.messaging",
-                    android.app.NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription("Notification channel for Messaging-AOSP");
-            getApplicationContext().getSystemService(android.app.NotificationManager.class)
-                                   .createNotificationChannel(channel);
-        }
-
-            mApplication.initializeSync(this);
+        mApplication.initializeSync(this);
 
         final Thread asyncInitialization = new Thread() {
             @Override

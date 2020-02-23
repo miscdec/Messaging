@@ -1,9 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.ext.sdkVersion
-
-
+    compileSdkVersion rootProject.ext.compileSdk
+    buildToolsVersion rootProject.ext.buildTools
 
     defaultConfig {
         minSdkVersion 19
@@ -23,7 +22,6 @@ android {
 }
 
 dependencies {
-    implementation "androidx.core:core:1.2.0"
-    implementation "androidx.annotation:annotation:${rootProject.ext.supportLibVersion}"
-    // testImplementation 'junit:junit:4.12'
+    implementation "com.android.support:support-compat:${rootProject.ext.supportLibVersion}"
+    implementation "com.android.support:support-annotations:${rootProject.ext.supportLibVersion}"
 }

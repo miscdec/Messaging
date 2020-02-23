@@ -39,7 +39,6 @@ import com.android.messaging.util.PhoneUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -104,13 +103,6 @@ public class DebugMmsConfigFragment extends Fragment {
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mMmsConfig = MmsConfig.get(subId);
             mKeys = new ArrayList<>(mMmsConfig.keySet());
-            Iterator<String> it = mKeys.iterator();
-            while (it.hasNext()) {
-                // Remove a config if the MmsConfig.sKeyTypeMap doesn't have it.
-                if (MmsConfig.getKeyType(it.next()) == null) {
-                    it.remove();
-                }
-            }
             Collections.sort(mKeys);
         }
 
@@ -133,7 +125,7 @@ public class DebugMmsConfigFragment extends Fragment {
 
         @Override
         public void onValueChanged(String key, String keyType, String value) {
-            mMmsConfig.update(keyType, key, value);
+            mMmsConfig.update(key, value, keyType);
             notifyDataSetChanged();
         }
 

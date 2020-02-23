@@ -1,12 +1,12 @@
 package com.android.ex.photo;
 
 import android.graphics.drawable.Drawable;
-import androidx.annotation.Nullable;
+import android.support.annotation.Nullable;
 
 
 /**
  * Wrapper activity for an action bar. This wraps either a {@link android.app.ActionBar} or
- * {@link androidx.appcompat.app.ActionBar}.
+ * {@link android.support.v7.app.ActionBar}.
  */
 public interface ActionBarInterface {
 

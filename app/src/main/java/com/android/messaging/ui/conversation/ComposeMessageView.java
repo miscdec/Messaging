@@ -20,14 +20,13 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.appcompat.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.InputFilter;
 import android.text.InputFilter.LengthFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.format.Formatter;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
@@ -68,9 +67,7 @@ import com.android.messaging.util.ContentType;
 import com.android.messaging.util.LogUtil;
 import com.android.messaging.util.MediaUtil;
 import com.android.messaging.util.OsUtil;
-import com.android.messaging.util.SafeAsyncTask;
 import com.android.messaging.util.UiUtils;
-import com.android.messaging.util.UriUtil;
 
 import java.util.Collection;
 import java.util.List;
@@ -115,7 +112,7 @@ public class ComposeMessageView extends LinearLayout
 
     private PlainTextEditText mComposeEditText;
     private PlainTextEditText mComposeSubjectText;
-    private TextView mMessageBodySize;
+    private TextView mCharCounter;
     private TextView mMmsIndicator;
     private SimIconView mSelfSendIcon;
     private ImageButton mSendButton;
@@ -174,7 +171,7 @@ public class ComposeMessageView extends LinearLayout
 
         final int counterColor = mHost.overrideCounterColor();
         if (counterColor != -1) {
-            mMessageBodySize.setTextColor(counterColor);
+            mCharCounter.setTextColor(counterColor);
         }
     }
 
@@ -312,7 +309,7 @@ public class ComposeMessageView extends LinearLayout
         mAttachmentPreview = (AttachmentPreview) findViewById(R.id.attachment_draft_view);
         mAttachmentPreview.setComposeMessageView(this);
 
-        mMessageBodySize = (TextView) findViewById(R.id.message_body_size);
+        mCharCounter = (TextView) findViewById(R.id.char_counter);
         mMmsIndicator = (TextView) findViewById(R.id.mms_indicator);
     }
 
@@ -483,8 +480,6 @@ public class ComposeMessageView extends LinearLayout
         final String subject = data.getMessageSubject();
         final String message = data.getMessageText();
 
-        boolean hasAttachmentsChanged = false;
-
         if ((changeFlags & DraftMessageData.MESSAGE_SUBJECT_CHANGED) ==
                 DraftMessageData.MESSAGE_SUBJECT_CHANGED) {
             mComposeSubjectText.setText(subject);
@@ -505,13 +500,12 @@ public class ComposeMessageView extends LinearLayout
                 DraftMessageData.ATTACHMENTS_CHANGED) {
             final boolean haveAttachments = mAttachmentPreview.onAttachmentsChanged(data);
             mHost.onAttachmentsChanged(haveAttachments);
-            hasAttachmentsChanged = true;
         }
 
         if ((changeFlags & DraftMessageData.SELF_CHANGED) == DraftMessageData.SELF_CHANGED) {
             updateOnSelfSubscriptionChange();
         }
-        updateVisualsOnDraftChanged(hasAttachmentsChanged);
+        updateVisualsOnDraftChanged();
     }
 
     @Override   // From DraftMessageDataListener
@@ -630,44 +624,7 @@ public class ComposeMessageView extends LinearLayout
                 mConversationDataModel.getData().getParticipantsLoaded();
     }
 
-    private static class AsyncUpdateMessageBodySizeTask
-            extends SafeAsyncTask<List<MessagePartData>, Void, Long> {
-
-        private final Context mContext;
-        private final TextView mSizeTextView;
-
-        public AsyncUpdateMessageBodySizeTask(final Context context, final TextView tv) {
-            mContext = context;
-            mSizeTextView = tv;
-        }
-
-        @Override
-        protected Long doInBackgroundTimed(final List<MessagePartData>... params) {
-            final List<MessagePartData> attachments = params[0];
-            long totalSize = 0;
-            for (final MessagePartData attachment : attachments) {
-                final Uri contentUri = attachment.getContentUri();
-                if (contentUri != null) {
-                    totalSize += UriUtil.getContentSize(attachment.getContentUri());
-                }
-            }
-            return totalSize;
-        }
-
-        @Override
-        protected void onPostExecute(Long size) {
-            if (mSizeTextView != null) {
-                mSizeTextView.setText(Formatter.formatFileSize(mContext, size));
-                mSizeTextView.setVisibility(View.VISIBLE);
-            }
-        }
-    }
-
     private void updateVisualsOnDraftChanged() {
-        updateVisualsOnDraftChanged(false);
-    }
-
-    private void updateVisualsOnDraftChanged(boolean hasAttachmentsChanged) {
         final String messageText = mComposeEditText.getText().toString();
         final DraftMessageData draftMessageData = mBinding.getData();
         draftMessageData.setMessageText(messageText);
@@ -683,39 +640,26 @@ public class ComposeMessageView extends LinearLayout
         final boolean hasWorkingDraft = hasMessageText || hasSubject ||
                 mBinding.getData().hasAttachments();
 
-        final List<MessagePartData> attachments = draftMessageData.getReadOnlyAttachments();
-        if (draftMessageData.getIsMms()) { // MMS case
-            if (draftMessageData.hasAttachments()) {
-                if (hasAttachmentsChanged) {
-                    // Calculate message attachments size and show it.
-                    new AsyncUpdateMessageBodySizeTask(getContext(), mMessageBodySize)
-                            .executeOnThreadPool(attachments, null, null);
-                } else {
-                    // No update. Just show previous size.
-                    mMessageBodySize.setVisibility(View.VISIBLE);
-                }
-            } else {
-                mMessageBodySize.setVisibility(View.INVISIBLE);
-            }
-        } else { // SMS case
-            // Update the SMS text counter.
-            final int messageCount = draftMessageData.getNumMessagesToBeSent();
-            final int codePointsRemaining =
-                    draftMessageData.getCodePointsRemainingInCurrentMessage();
-            // Show the counter only if we are going to send more than one message OR we are getting
-            // close.
-            if (messageCount > 1
-                    || codePointsRemaining <= CODEPOINTS_REMAINING_BEFORE_COUNTER_SHOWN) {
-                // Update the remaining characters and number of messages required.
-                final String counterText =
-                        messageCount > 1
-                                ? codePointsRemaining + " / " + messageCount
-                                : String.valueOf(codePointsRemaining);
-                mMessageBodySize.setText(counterText);
-                mMessageBodySize.setVisibility(View.VISIBLE);
-            } else {
-                mMessageBodySize.setVisibility(View.INVISIBLE);
-            }
+        // Update the SMS text counter.
+        final int messageCount = draftMessageData.getNumMessagesToBeSent();
+        final int codePointsRemaining = draftMessageData.getCodePointsRemainingInCurrentMessage();
+        // Show the counter only if:
+        // - We are not in MMS mode
+        // - We are going to send more than one message OR we are getting close
+        boolean showCounter = false;
+        if (!draftMessageData.getIsMms() && (messageCount > 1 ||
+                 codePointsRemaining <= CODEPOINTS_REMAINING_BEFORE_COUNTER_SHOWN)) {
+            showCounter = true;
+        }
+
+        if (showCounter) {
+            // Update the remaining characters and number of messages required.
+            final String counterText = messageCount > 1 ? codePointsRemaining + " / " +
+                    messageCount : String.valueOf(codePointsRemaining);
+            mCharCounter.setText(counterText);
+            mCharCounter.setVisibility(View.VISIBLE);
+        } else {
+            mCharCounter.setVisibility(View.INVISIBLE);
         }
 
         // Update the send message button. Self icon uri might be null if self participant data
@@ -755,6 +699,7 @@ public class ComposeMessageView extends LinearLayout
         }
 
         // Update the text hint on the message box depending on the attachment type.
+        final List<MessagePartData> attachments = draftMessageData.getReadOnlyAttachments();
         final int attachmentCount = attachments.size();
         if (attachmentCount == 0) {
             final SubscriptionListEntry subscriptionListEntry =

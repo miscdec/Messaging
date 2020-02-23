@@ -43,14 +43,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Parcelable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.core.text.BidiFormatter;
-import androidx.core.text.TextDirectionHeuristicsCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.text.BidiFormatter;
+import android.support.v4.text.TextDirectionHeuristicsCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.Display;
@@ -191,8 +191,7 @@ public class ConversationFragment extends Fragment implements ConversationDataLi
                     intent.getStringExtra(UIIntents.UI_INTENT_EXTRA_CONVERSATION_SELF_ID);
             Assert.notNull(conversationId);
             Assert.notNull(selfId);
-            if (isBound() && TextUtils
-                    .equals(mBinding.getData().getConversationId(), conversationId)) {
+            if (TextUtils.equals(mBinding.getData().getConversationId(), conversationId)) {
                 mComposeMessageView.updateConversationSelfIdOnExternalChange(selfId);
             }
         }
@@ -565,7 +564,6 @@ public class ConversationFragment extends Fragment implements ConversationDataLi
                             @Override
                             public void run() {
                                 view.setAlpha(1);
-                                dispatchAddFinished(holder);
                             }
                         });
                     mPopupTransitionAnimation.startAfterLayoutComplete();

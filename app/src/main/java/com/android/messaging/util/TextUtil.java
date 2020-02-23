@@ -15,7 +15,7 @@
  */
 package com.android.messaging.util;
 
-import androidx.annotation.Nullable;
+import android.support.annotation.Nullable;
 
 public class TextUtil {
     /**

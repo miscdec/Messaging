@@ -17,7 +17,7 @@
 package com.android.messaging.sms;
 
 import android.os.Bundle;
-import androidx.appcompat.mms.CarrierConfigValuesLoader;
+import android.support.v7.mms.CarrierConfigValuesLoader;
 import android.telephony.SubscriptionInfo;
 
 import com.android.messaging.Factory;
@@ -90,8 +90,6 @@ public class MmsConfig {
         sKeyTypeMap.put(CarrierConfigValuesLoader.CONFIG_HTTP_PARAMS, KEY_TYPE_STRING);
         sKeyTypeMap.put(CarrierConfigValuesLoader.CONFIG_EMAIL_GATEWAY_NUMBER, KEY_TYPE_STRING);
         sKeyTypeMap.put(CarrierConfigValuesLoader.CONFIG_NAI_SUFFIX, KEY_TYPE_STRING);
-        sKeyTypeMap.put(CarrierConfigValuesLoader.CONFIG_UA_PROF_URL, KEY_TYPE_STRING);
-        sKeyTypeMap.put(CarrierConfigValuesLoader.CONFIG_USER_AGENT, KEY_TYPE_STRING);
     }
 
     // A map that stores all MmsConfigs, one per active subscription. For pre-LMSim, this will

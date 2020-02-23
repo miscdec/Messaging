@@ -21,7 +21,6 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 
 import com.android.messaging.util.LogUtil;
@@ -79,12 +78,6 @@ public abstract class BaseWidgetProvider extends AppWidgetProvider {
         }
     }
 
-    @Override
-    public void onEnabled(Context context) {
-        super.onEnabled(context);
-        context.getApplicationContext().registerReceiver(this, new IntentFilter(getAction()));
-    }
-
     protected abstract String getAction();
 
     protected abstract int getListId();
@@ -94,51 +87,52 @@ public abstract class BaseWidgetProvider extends AppWidgetProvider {
      */
     protected abstract void updateWidget(Context context, int appWidgetId);
 
-    private int getWidgetSize(AppWidgetManager appWidgetManager, int appWidgetId) {
-        if (LogUtil.isLoggable(TAG, LogUtil.VERBOSE)) {
-            LogUtil.v(TAG, "BaseWidgetProvider.getWidgetSize");
-        }
+    private int getWidgetSize(AppWidgetManager appWidgetManager,
+        int appWidgetId) {
+      if (LogUtil.isLoggable(TAG, LogUtil.VERBOSE)) {
+        LogUtil.v(TAG, "BaseWidgetProvider.getWidgetSize");
+      }
 
-        // Get the dimensions
-        final Bundle options = appWidgetManager.getAppWidgetOptions(appWidgetId);
+      // Get the dimensions
+      final Bundle options = appWidgetManager.getAppWidgetOptions(appWidgetId);
 
-        // Get min width and height.
-        final int minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-        final int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+      // Get min width and height.
+      final int minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+      final int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
 
-        // First find out rows and columns based on width provided.
-        final int rows = getCellsForSize(minHeight);
-        final int columns = getCellsForSize(minWidth);
+      // First find out rows and columns based on width provided.
+      final int rows = getCellsForSize(minHeight);
+      final int columns = getCellsForSize(minWidth);
 
-        if (LogUtil.isLoggable(TAG, LogUtil.VERBOSE)) {
-            LogUtil.v(TAG, "BaseWidgetProvider.getWidgetSize row: " + rows
-                    + " columns: " + columns);
-        }
+      if (LogUtil.isLoggable(TAG, LogUtil.VERBOSE)) {
+        LogUtil.v(TAG, "BaseWidgetProvider.getWidgetSize row: " + rows +
+            " columns: " + columns);
+      }
 
-        int size = SIZE_MEDIUM;
-        if (rows == 1) {
-            size = SIZE_SMALL;  // Our widget doesn't let itself get this small. Perhaps in the
+      int size = SIZE_MEDIUM;
+      if (rows == 1) {
+        size = SIZE_SMALL;      // Our widget doesn't let itself get this small. Perhaps in the
                                 // future will add a super-mini widget.
-        } else if (columns > 3) {
-            size = SIZE_LARGE;
+      } else if (columns > 3) {
+        size = SIZE_LARGE;
+      }
+
+      // put the size in the bundle so our service know what size it's dealing with.
+      final int savedSize = options.getInt(WIDGET_SIZE_KEY);
+      if (savedSize != size) {
+        options.putInt(WIDGET_SIZE_KEY, size);
+        appWidgetManager.updateAppWidgetOptions(appWidgetId, options);
+
+        // The size changed. We have to force the widget to rebuild the list.
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, getListId());
+
+        if (LogUtil.isLoggable(TAG, LogUtil.VERBOSE)) {
+          LogUtil.v(TAG, "BaseWidgetProvider.getWidgetSize old size: " + savedSize +
+              " new size saved: " + size);
         }
+      }
 
-        // put the size in the bundle so our service know what size it's dealing with.
-        final int savedSize = options.getInt(WIDGET_SIZE_KEY);
-        if (savedSize != size) {
-            options.putInt(WIDGET_SIZE_KEY, size);
-            appWidgetManager.updateAppWidgetOptions(appWidgetId, options);
-
-            // The size changed. We have to force the widget to rebuild the list.
-            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, getListId());
-
-            if (LogUtil.isLoggable(TAG, LogUtil.VERBOSE)) {
-                LogUtil.v(TAG, "BaseWidgetProvider.getWidgetSize old size: " + savedSize
-                                + " new size saved: " + size);
-            }
-        }
-
-        return size;
+      return size;
     }
 
     /**
@@ -148,10 +142,10 @@ public abstract class BaseWidgetProvider extends AppWidgetProvider {
      * @return Size in number of cells.
      */
     private static int getCellsForSize(int size) {
-        // The hardwired sizes in this function come from the hardwired formula found in
-        // Android's UI guidelines for widget design:
-        // http://developer.android.com/guide/practices/ui_guidelines/widget_design.html
-        return (size + 30) / 70;
+      // The hardwired sizes in this function come from the hardwired formula found in
+      // Android's UI guidelines for widget design:
+      // http://developer.android.com/guide/practices/ui_guidelines/widget_design.html
+      return (size + 30) / 70;
     }
 
     @Override

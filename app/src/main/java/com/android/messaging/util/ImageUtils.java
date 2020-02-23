@@ -32,7 +32,7 @@ import android.graphics.Shader.TileMode;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
-import androidx.annotation.Nullable;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -682,11 +682,8 @@ public class ImageUtils {
                 if (mScaled == null) {
                     if (mDecoded == null) {
                         mOptions.inSampleSize = mSampleSize;
-                        try (final InputStream inputStream = cr.openInputStream(mUri)) {
-                            mDecoded = BitmapFactory.decodeStream(inputStream, null, mOptions);
-                        } catch (IOException e) {
-                            // Ignore
-                        }
+                        final InputStream inputStream = cr.openInputStream(mUri);
+                        mDecoded = BitmapFactory.decodeStream(inputStream, null, mOptions);
                         if (mDecoded == null) {
                             if (logv) {
                                 LogUtil.v(LogUtil.BUGLE_IMAGE_TAG,

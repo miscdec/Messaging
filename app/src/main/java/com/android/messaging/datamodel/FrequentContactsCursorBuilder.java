@@ -18,7 +18,7 @@ package com.android.messaging.datamodel;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
-import androidx.collection.SimpleArrayMap;
+import android.support.v4.util.SimpleArrayMap;
 
 import com.android.messaging.util.Assert;
 import com.android.messaging.util.ContactUtil;

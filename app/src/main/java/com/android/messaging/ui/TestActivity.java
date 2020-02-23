@@ -18,7 +18,7 @@ package com.android.messaging.ui;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;

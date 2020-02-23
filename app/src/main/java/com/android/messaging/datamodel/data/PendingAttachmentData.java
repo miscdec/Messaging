@@ -18,7 +18,7 @@ package com.android.messaging.datamodel.data;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 
 import com.android.messaging.util.Assert;
 import com.android.messaging.util.ContentType;

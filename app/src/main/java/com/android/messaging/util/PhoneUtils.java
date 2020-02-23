@@ -26,7 +26,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.provider.Settings;
 import android.provider.Telephony;
-import androidx.collection.ArrayMap;
+import android.support.v4.util.ArrayMap;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
 import android.telephony.SubscriptionInfo;

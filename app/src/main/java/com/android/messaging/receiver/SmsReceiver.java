@@ -27,10 +27,10 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.provider.Telephony;
 import android.provider.Telephony.Sms;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationCompat.Builder;
-import androidx.core.app.NotificationCompat.Style;
-import androidx.core.app.NotificationManagerCompat;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
+import android.support.v4.app.NotificationCompat.Style;
+import android.support.v4.app.NotificationManagerCompat;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -186,14 +186,13 @@ public final class SmsReceiver extends BroadcastReceiver {
             return;
         }
 
-        final int errorCode =
-                intent.getIntExtra(EXTRA_ERROR_CODE, SendStatusReceiver.NO_ERROR_CODE);
+        final int errorCode = intent.getIntExtra(EXTRA_ERROR_CODE, 0);
         // Always convert negative subIds into -1
         int subId = PhoneUtils.getDefault().getEffectiveIncomingSubIdFromSystem(
                 intent, EXTRA_SUB_ID);
         deliverSmsMessages(context, subId, errorCode, messages);
         if (MmsUtils.isDumpSmsEnabled()) {
-            final String format = intent.getStringExtra("format");
+            final String format = null;
             DebugUtils.dumpSms(messages[0].getTimestampMillis(), messages, format);
         }
     }

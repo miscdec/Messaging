@@ -23,9 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.ActionBar;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -159,7 +159,7 @@ public class MediaPicker extends Fragment implements DraftMessageSubscriptionDat
     @VisibleForTesting
     final Binding<MediaPickerData> mBinding = BindingBase.createBinding(this);
 
-    /** Handles picking a media from the document picker. */
+    /** Handles picking image from the document picker */
     private DocumentImagePicker mDocumentImagePicker;
 
     /** Provides subscription-related data to access per-subscription configurations. */

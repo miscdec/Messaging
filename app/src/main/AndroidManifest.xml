@@ -208,15 +208,19 @@
             <intent-filter
                 android:label="@string/share_intent_label">
                 <action android:name="android.intent.action.SEND" />
-                <action android:name="android.intent.action.SEND_MULTIPLE" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
                 <data android:mimeType="text/x-vCard" />
                 <data android:mimeType="text/x-vcard" />
                 <data android:mimeType="image/*" />
                 <data android:mimeType="audio/*" />
-                <data android:mimeType="video/*" />
                 <data android:mimeType="application/ogg" />
+            </intent-filter>
+            <intent-filter
+                    android:label="@string/share_intent_label">
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
 
@@ -321,12 +325,8 @@
 
 
         <!-- Action Services -->
-        <service android:name=".datamodel.action.ActionServiceImpl"
-                 android:permission="android.permission.BIND_JOB_SERVICE"
-                 android:exported="true"/>
-        <service android:name=".datamodel.action.BackgroundWorkerService"
-                 android:permission="android.permission.BIND_JOB_SERVICE"
-                 android:exported="true"/>
+        <service android:name=".datamodel.action.ActionServiceImpl"/>
+        <service android:name=".datamodel.action.BackgroundWorkerService"/>
 
         <!-- Sms and Mms related items -->
 
@@ -424,7 +424,7 @@
         </activity>
 
         <activity android:name=".ui.SmsStorageLowWarningActivity"
-                  android:theme="@style/Translucent"
+                  android:theme="@style/Invisible"
                   android:configChanges="orientation|screenSize|keyboardHidden" />
 
         <activity android:name=".ui.appsettings.ApnSettingsActivity"
@@ -482,6 +482,9 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.android.Bugle.intent.action.ACTION_NOTIFY_CONVERSATIONS_CHANGED" />
+            </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                        android:resource="@xml/widget_conversation_list" />
         </receiver>
@@ -491,6 +494,9 @@
                 android:label="@string/widget_conversation_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.android.Bugle.intent.action.ACTION_NOTIFY_MESSAGES_CHANGED" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                        android:resource="@xml/widget_conversation" />
@@ -512,7 +518,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="androidx.appcompat.mms.MmsService"/>
+        <service android:name="android.support.v7.mms.MmsService"/>
     </application>
 
 </manifest>
