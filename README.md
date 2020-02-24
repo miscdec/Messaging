@@ -7,7 +7,7 @@ The **goal** is not to fix and/or enhance this Google _et al._ owned app outside
 There are 3 branches:  
 **9.0** follows a recent *android-9.0.0_rXX* tag from upstream (check `ext.verName` in top level build.gradle).  
 Likewise, **10.0** follows a recent *android-10.0.0_rXX* tag from upstream.  
-**goplay** is a fork of **10.0** branch with modifications required by Google Play (yes, Google finds its original app unacceptable to Play market).
+**goplay** is a fork of **9.0** branch with modifications required by Google Play (yes, Google finds its original app unacceptable to Play market).
 
 ## How usable is this?
 **9.0** and **10.0** branches are the closest to original app. They should be as stable as Google _et. al_ intended them to be.  
