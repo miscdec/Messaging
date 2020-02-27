@@ -23,10 +23,10 @@ allprojects {
 }
 
 ext {
-    sdkVersion = 28
+    sdkVersion = 24
     compileSdk = 28
     buildTools = "28.0.3"
-    verName = "10.0.0_r29"
+    verName = "sdk-rel"
     verCode = 15
 }
 
