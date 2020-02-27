@@ -23,10 +23,10 @@ allprojects {
 }
 
 ext {
-    sdkVersion = 24
+    sdkVersion = 28
     compileSdk = 28
     buildTools = "28.0.3"
-    verName = "sdk-rel"
+    verName = "sdk-rel.goplay"
     verCode = 15
 }
 
