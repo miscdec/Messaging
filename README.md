@@ -4,7 +4,7 @@ This is the [stock SMS app from AOSP](https://android.googlesource.com/platform/
 The **goal** is not to fix and/or enhance this Google _et al._ owned app outside its premises, but rather _study, observe, experiment with_ and other reasons you can think of. Source code changes, if any, are kept at a minimum.
 
 ## Structure
-There's a [long list of branches and tags](https://android.googlesource.com/platform/packages/apps/Messaging/+refs) upstream and I really don't know what they refer to, which ones are stable (if any). So far I've been _experimenting with_ several tags/branches, none of which proved to be stable.
+There's a [long list of branches and tags](https://android.googlesource.com/platform/packages/apps/Messaging/+refs) upstream and I really don't know what they refer to, which ones are stable (if any). So far I've been _experimenting with_ several tags/branches, none of which proved to be stable. "App Vitals" page of this app in my Play developer account is flooded with reports of ANRs and crashes, no matter which tag/branch I follow. Caveat emptor!
 
 Having said that, currently there are 4 branches in this repo:  
 **9.0** follows a recent *android-9.0.0_rXX* tag from upstream (check `ext.verName` in top level build.gradle).  
