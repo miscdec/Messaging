@@ -13,7 +13,7 @@ Likewise, **10.0** follows a recent *android-10.0.0_rXX* tag from upstream.
 **goplay** is a fork of **sdk-release** with modifications required by Google Play (yes, Google finds its original app unacceptable to Play market).
 
 ## How usable is this?
-I reckon **9.0** branch is the closest to original app. It should be as stable as Google _et. al_ intended it to be.  
+I reckon **9.0** branch is the closest to original app. It should be as stable as Google _et. al_ intended it to be. There is an APK of this branch under releases section (however, it is not possible to submit this revision to Play market).  
 **sdk-release** has the most recent commits and is currently ahead of both **9.0** and **10.0**.  
 In order to be accepted to Play market, **goplay** branch bumps `targetSdkVersion` to 28 which causes notifications to disappear on Android 8+ and intermittent crashes, because of the backward-incompatible changes "Android Team" has progressively been introducing to the SDK.
 
