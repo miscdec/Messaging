@@ -7,6 +7,9 @@ The **goal** is not to fix and/or enhance this Google _et al._ owned app outside
 but rather _study, observe, experiment with_ and other reasons you can think of.
 Source code changes, if any, are kept at a minimum.
 
+**Please do NOT create bug reports here. Use https://issuetracker.google.com/issues?q=componentid:192810 instead.**
+I'm NOT a Google _et al._ employee.
+
 ## Structure
 There's a [long list of branches and tags](https://android.googlesource.com/platform/packages/apps/Messaging/+refs) upstream
 and I really don't know what they refer to, which ones are stable (if any).
