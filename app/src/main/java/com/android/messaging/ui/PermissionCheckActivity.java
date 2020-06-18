@@ -28,9 +28,7 @@ import android.widget.TextView;
 
 import com.android.messaging.Factory;
 import com.android.messaging.R;
-import com.android.messaging.util.ChangeDefaultSmsAppHelper;
 import com.android.messaging.util.OsUtil;
-import com.android.messaging.util.PhoneUtils;
 import com.android.messaging.util.UiUtils;
 
 /**
@@ -45,7 +43,6 @@ public class PermissionCheckActivity extends Activity {
     private long mRequestTimeMillis;
     private TextView mNextView;
     private TextView mSettingsView;
-    private final ChangeDefaultSmsAppHelper mChangeDefaultSmsAppHelper = new ChangeDefaultSmsAppHelper();
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -55,8 +52,7 @@ public class PermissionCheckActivity extends Activity {
         }
 
         setContentView(R.layout.permission_check_activity);
-        if (OsUtil.isAtLeastM())
-            UiUtils.setStatusBarColor(this, getColor(R.color.permission_check_activity_background));
+        UiUtils.setStatusBarColor(this, getColor(R.color.permission_check_activity_background));
 
         findViewById(R.id.exit).setOnClickListener(new OnClickListener() {
             @Override
@@ -94,23 +90,8 @@ public class PermissionCheckActivity extends Activity {
     }
 
     private void tryRequestPermission() {
-        if (!PhoneUtils.getDefault().isDefaultSmsApp()) {
-            mChangeDefaultSmsAppHelper.warnOfMissingActionConditions(false,
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            tryRequestPermission();
-                        }
-                    },
-                    null,
-                    null,
-                    this, null);
-            return;
-        }
-
         final String[] missingPermissions = OsUtil.getMissingRequiredPermissions();
         if (missingPermissions.length == 0) {
-            Factory.get().onRequiredPermissionsAcquired();  // not sure if this line is needed
             redirect();
             return;
         }
@@ -143,14 +124,9 @@ public class PermissionCheckActivity extends Activity {
         }
     }
 
-    @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        mChangeDefaultSmsAppHelper.handleChangeDefaultSmsResult(requestCode, resultCode, null);
-    }
-
     /** Returns true if the redirecting was performed */
     private boolean redirectIfNeeded() {
-        if (!OsUtil.hasRequiredPermissions() || !PhoneUtils.getDefault().isDefaultSmsApp()) {
+        if (!OsUtil.hasRequiredPermissions()) {
             return false;
         }
 

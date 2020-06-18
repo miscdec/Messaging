@@ -57,13 +57,21 @@ import com.android.messaging.util.LogUtil;
 import com.android.messaging.util.OsUtil;
 import com.android.messaging.util.PhoneUtils;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+
 public class DataModelImpl extends DataModel {
     private final Context mContext;
     private final ActionService mActionService;
     private final BackgroundWorker mDataModelWorker;
     private final DatabaseHelper mDatabaseHelper;
-    private final ConnectivityUtil mConnectivityUtil;
     private final SyncManager mSyncManager;
+
+    // Cached ConnectivityUtil instance for Pre-N.
+    private static ConnectivityUtil sConnectivityUtilInstanceCachePreN = null;
+    // Cached ConnectivityUtil subId->instance for N and beyond
+    private static final ConcurrentHashMap<Integer, ConnectivityUtil>
+            sConnectivityUtilInstanceCacheN = new ConcurrentHashMap<>();
 
     public DataModelImpl(final Context context) {
         super();
@@ -71,8 +79,12 @@ public class DataModelImpl extends DataModel {
         mActionService = new ActionService();
         mDataModelWorker = new BackgroundWorker();
         mDatabaseHelper = DatabaseHelper.getInstance(context);
-        mConnectivityUtil = new ConnectivityUtil(context);
         mSyncManager = new SyncManager();
+        if (OsUtil.isAtLeastN()) {
+            createConnectivityUtilForEachActiveSubscription();
+        } else {
+            sConnectivityUtilInstanceCachePreN = new ConnectivityUtil(context);
+        }
     }
 
     @Override
@@ -185,11 +197,6 @@ public class DataModelImpl extends DataModel {
     }
 
     @Override
-    public ConnectivityUtil getConnectivityUtil() {
-        return mConnectivityUtil;
-    }
-
-    @Override
     public SyncManager getSyncManager() {
         return mSyncManager;
     }
@@ -218,7 +225,8 @@ public class DataModelImpl extends DataModel {
         SyncManager.immediateSync();
 
         if (OsUtil.isAtLeastL_MR1()) {
-            // Start listening for subscription change events for refreshing self participants.
+            // Start listening for subscription change events for refreshing any data associated
+            // with subscriptions.
             PhoneUtils.getDefault().toLMr1().registerOnSubscriptionsChangedListener(
                     new SubscriptionManager.OnSubscriptionsChangedListener() {
                         @Override
@@ -229,8 +237,38 @@ public class DataModelImpl extends DataModel {
                             // gracefully
                             MmsConfig.loadAsync();
                             ParticipantRefresh.refreshSelfParticipants();
+                            if (OsUtil.isAtLeastN()) {
+                                createConnectivityUtilForEachActiveSubscription();
+                            }
                         }
                     });
+        }
+    }
+
+    private void createConnectivityUtilForEachActiveSubscription() {
+        PhoneUtils.forEachActiveSubscription(new PhoneUtils.SubscriptionRunnable() {
+            @Override
+            public void runForSubscription(int subId) {
+                // Create the ConnectivityUtil instance for given subId if absent.
+                if (subId <= ParticipantData.DEFAULT_SELF_SUB_ID) {
+                    subId = PhoneUtils.getDefault().getDefaultSmsSubscriptionId();
+                }
+                sConnectivityUtilInstanceCacheN.computeIfAbsent(
+                        subId, new Function<Integer, ConnectivityUtil>() {
+                            @Override
+                            public ConnectivityUtil apply(Integer key) {
+                                return new ConnectivityUtil(mContext, key);
+                            }
+                        });
+            }
+        });
+    }
+
+    public static ConnectivityUtil getConnectivityUtil(final int subId) {
+        if (OsUtil.isAtLeastN()) {
+            return sConnectivityUtilInstanceCacheN.get(subId);
+        } else {
+            return sConnectivityUtilInstanceCachePreN;
         }
     }
 }

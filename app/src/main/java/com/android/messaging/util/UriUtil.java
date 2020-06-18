@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.android.messaging.Factory;
+import com.android.messaging.datamodel.GalleryBoundCursorLoader;
 import com.android.messaging.datamodel.MediaScratchFileProvider;
 import com.android.messaging.util.Assert.DoesNotRunOnMainThread;
 import com.google.common.io.ByteStreams;
@@ -127,6 +128,18 @@ public class UriUtil {
                 && (TextUtils.equals(MediaStore.AUTHORITY, uriAuthority) ||
                 // KK changed the media store authority name
                 TextUtils.equals(MEDIA_STORE_URI_KLP, uriAuthority));
+    }
+
+    /**
+     * Gets the content:// style URI for the given MediaStore row Id in the files table on the
+     * external volume.
+     *
+     * @param id the MediaStore row Id to get the URI for
+     * @return the URI to the files table on the external storage.
+     */
+    public static Uri getContentUriForMediaStoreId(final long id) {
+        return MediaStore.Files.getContentUri(
+                GalleryBoundCursorLoader.MEDIA_SCANNER_VOLUME_EXTERNAL, id);
     }
 
     /**
@@ -311,14 +324,13 @@ public class UriUtil {
     }
 
     /**
-     * Extract recipient destinations from Uri of form
-     *     SCHEME:destionation[,destination]?otherstuff
+     * Extract recipient destinations from Uri of form SCHEME:destination[,destination]?otherstuff
      * where SCHEME is one of the supported sms/mms schemes.
      *
      * @param uri sms/mms uri
-     * @return recipient destinations or null
+     * @return a comma-separated list of recipient destinations or null.
      */
-    public static String[] parseRecipientsFromSmsMmsUri(final Uri uri) {
+    public static String parseRecipientsFromSmsMmsUri(final Uri uri) {
         if (!isSmsMmsUri(uri)) {
             return null;
         }
@@ -328,7 +340,7 @@ public class UriUtil {
         }
         // replaceUnicodeDigits will replace digits typed in other languages (i.e. Egyptian) with
         // the usual ascii equivalents.
-        return TextUtil.replaceUnicodeDigits(parts[0]).replace(';', ',').split(",");
+        return TextUtil.replaceUnicodeDigits(parts[0]).replace(';', ',');
     }
 
     /**

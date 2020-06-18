@@ -7,7 +7,7 @@ buildscript {
         
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:4.0.0'
         
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -23,11 +23,11 @@ allprojects {
 }
 
 ext {
-    sdkVersion = 28
-    compileSdk = 28
-    buildTools = "28.0.3"
-    verName = "sdk-rel.goplay"
-    verCode = 15
+    sdkVersion = 29
+    compileSdk = 29
+    buildTools = "29.0.3"
+    verName = "goplay-20200618"
+    verCode = 16
 }
 
 task clean(type: Delete) {

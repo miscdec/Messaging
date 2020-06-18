@@ -309,7 +309,7 @@ public class UiUtils {
      * @return true if {@link Activity#finish()} was called because redirection was performed
      */
     public static boolean redirectToPermissionCheckIfNeeded(final Activity activity) {
-        if (!OsUtil.hasRequiredPermissions() || !PhoneUtils.getDefault().isDefaultSmsApp()) {
+        if (!OsUtil.hasRequiredPermissions()) {
             UIIntents.get().launchPermissionCheckActivity(activity);
         } else {
             // No redirect performed
