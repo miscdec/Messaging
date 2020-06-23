@@ -58,7 +58,6 @@ import com.android.messaging.util.OsUtil;
 import com.android.messaging.util.PhoneUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 public class DataModelImpl extends DataModel {
     private final Context mContext;
@@ -80,11 +79,6 @@ public class DataModelImpl extends DataModel {
         mDataModelWorker = new BackgroundWorker();
         mDatabaseHelper = DatabaseHelper.getInstance(context);
         mSyncManager = new SyncManager();
-        if (OsUtil.isAtLeastN()) {
-            createConnectivityUtilForEachActiveSubscription();
-        } else {
-            sConnectivityUtilInstanceCachePreN = new ConnectivityUtil(context);
-        }
     }
 
     @Override
@@ -220,6 +214,12 @@ public class DataModelImpl extends DataModel {
 
     @Override
     public void onApplicationCreated() {
+        if (OsUtil.isAtLeastN()) {
+            createConnectivityUtilForEachActiveSubscription();
+        } else {
+            sConnectivityUtilInstanceCachePreN = new ConnectivityUtil(mContext);
+        }
+
         FixupMessageStatusOnStartupAction.fixupMessageStatus();
         ProcessPendingMessagesAction.processFirstPendingMessage();
         SyncManager.immediateSync();
@@ -253,13 +253,10 @@ public class DataModelImpl extends DataModel {
                 if (subId <= ParticipantData.DEFAULT_SELF_SUB_ID) {
                     subId = PhoneUtils.getDefault().getDefaultSmsSubscriptionId();
                 }
-                sConnectivityUtilInstanceCacheN.computeIfAbsent(
-                        subId, new Function<Integer, ConnectivityUtil>() {
-                            @Override
-                            public ConnectivityUtil apply(Integer key) {
-                                return new ConnectivityUtil(mContext, key);
-                            }
-                        });
+                if (!sConnectivityUtilInstanceCacheN.containsKey(subId)) {
+                    sConnectivityUtilInstanceCacheN.put(
+                            subId, new ConnectivityUtil(mContext, subId));
+                }
             }
         });
     }

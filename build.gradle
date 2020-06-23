@@ -26,8 +26,8 @@ ext {
     sdkVersion = 29
     compileSdk = 29
     buildTools = "29.0.3"
-    verName = "goplay-20200618"
-    verCode = 16
+    verName = "goplay-20200623"
+    verCode = 17
 }
 
 task clean(type: Delete) {
