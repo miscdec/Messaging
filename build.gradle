@@ -18,16 +18,15 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
     }
 }
 
 ext {
-    sdkVersion = 29
+    sdkVersion = 24
     compileSdk = 29
     buildTools = "29.0.3"
-    verName = "goplay-20200623"
-    verCode = 17
+    verName = "goplay-20200630-github"
+    verCode = 18
 }
 
 task clean(type: Delete) {
