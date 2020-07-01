@@ -6,6 +6,14 @@ It builds with Build Tools version 29.0 using Android Studio 4.0.0
 **Please do NOT create bug reports here. Use https://issuetracker.google.com/issues?q=componentid:192810 instead.**
 I'm not a Google *et al.* employee.
 
+----
+> **NOTE :**  
+> This app requires `targetSdk` set to 24. Any higher Sdk level causes notifications to disappear on Oreo and later devices.
+> However, Google Play does not accept apps with `targetSdk` set to lower than 28. Therefore, the version you install from Play
+> will experience missing notifications if you have Oreo and later device. In that case, **do not install this app from Google Play,
+> get the latest APK released here.** It is built with `targetSdk=24`.
+----
+
 ## How usable is this?
 There's a [long list of branches and tags](https://android.googlesource.com/platform/packages/apps/Messaging/+refs) upstream
 and I really don't know what they refer to, which ones are stable (if any).
