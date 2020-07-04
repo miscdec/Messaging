@@ -7,6 +7,9 @@ It builds with Build Tools version 29.0 using Android Studio 4.0.0
 I'm not a Google *et al.* employee.
 
 ----
+### Because of the issue stated in the Note below, this app has been REMOVED FROM PLAY STORE until further notice. Only use the latest APK released here.
+----
+
 > **NOTE :**  
 > This app requires `targetSdk` set to 24. Any higher Sdk level causes notifications to disappear on Oreo and later devices.
 > However, Google Play does not accept apps with `targetSdk` set to lower than 28. Therefore, the version you install from Play
