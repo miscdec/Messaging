@@ -34,3 +34,11 @@ that this app only displays items in a Listview with no means to categorize, que
 Overall it's been quite an unpleasant experience and distasteful glimpse into a part of AOSP for me, that reaffirmed
 my doubts on the quality of open source code as shared with the public.
 
+## How to work on this?
+Just clone the repo. Android Studio's Open Project dialog should recognize that folder as a valid Android project. Select it,
+and click Open. The rest should be handled by Android Studio.
+
+## How different is this from the original one in AOSP?
+It should be identical. I deliberately tried to keep it that way. However, this app uses ProGuard as a conditional compilation tool.
+So, its use is not optional. And if you skip it, the resultant app crashes. But I found a boolean flag that I can set so that the app
+won't crash without ProGuard. See `util/Assert.java` for details. That is probably the most significant difference.
